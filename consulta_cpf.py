@@ -290,7 +290,7 @@ def run_and_save_to_dataframe(cpfs):
     print("Dados armazenados no arquivo 'financeiro.csv'.")
 
 # Lista de CPFs para consulta
-cpfs = ['24244627200', '38559706291', '98657976234', '62394517204', '24244627200', '38730561949', '31225667291'] 
+cpfs = ['24244627200'] 
 
 # Rodar o script
 run_and_save_to_dataframe(cpfs)

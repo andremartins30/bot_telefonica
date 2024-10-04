@@ -4,6 +4,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 import subprocess
 import os
+import sys
+print("abrir_e_autenticar.py sys.path:")
+print(sys.path)
 
 # Caminho para o Chrome
 chrome_path = "C:/Program Files/Google/Chrome/Application/chrome.exe"
@@ -17,7 +20,7 @@ command = [chrome_path, f"--remote-debugging-port=9222", f"--user-data-dir={user
 # Iniciar o Chrome
 subprocess.Popen(command)
 
-time.sleep(5)  # Aguardar 5 segundos para o Chrome iniciar
+time.sleep(3)  # Aguardar 5 segundos para o Chrome iniciar
 
 
 # Configurar as opções do Chrome para conectar à sessão existente
