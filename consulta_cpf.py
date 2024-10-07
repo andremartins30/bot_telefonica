@@ -69,9 +69,11 @@ def consulta_cpf(cpf):
         actions.move_to_element(button_detalhes).click().perform()
         
     except Exception as e:
-        print(f"Erro ao realizar consulta para CPF: {cpf}, erro: {str(e)}")
+        error_message = f"Erro ao realizar consulta para CPF: {cpf}, erro: {str(e)}"
         driver.save_screenshot(f"error_screenshot_{cpf}.png")
         print(f"Screenshot salvo como error_screenshot_{cpf}.png")
+        return error_message
+    return None
 
 # Função para buscar informações
 def buscar_informacoes():
@@ -290,7 +292,7 @@ def run_and_save_to_dataframe(cpfs):
     print("Dados armazenados no arquivo 'financeiro.csv'.")
 
 # Lista de CPFs para consulta
-cpfs = ['24244627200'] 
+cpfs = []
 
 # Rodar o script
 run_and_save_to_dataframe(cpfs)

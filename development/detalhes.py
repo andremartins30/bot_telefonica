@@ -66,3 +66,6 @@ def buscar_ofertas():
 resultados = buscar_informacoes()
 ofertas = buscar_ofertas()
 print("Informações coletadas:", resultados, ofertas)
+
+#/html/body/div[2]/div/main/div/form/fieldset/input
+#//*[@id="form"]/fieldset/input
