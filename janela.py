@@ -1,9 +1,10 @@
-import threading
-import tkinter as tk
-from tkinter import ttk
+import os
 import sys
 import importlib.util
-import tkinter.messagebox as messagebox
+import threading
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
 
 # Variáveis globais para armazenar as referências dos widgets
 input_cpfs = None
@@ -13,39 +14,39 @@ janela = None  # Variável global para a janela
 logs = None  # Variável global para o campo de logs
 
 def autenticar_pagina():
-    spec = importlib.util.spec_from_file_location("abrir_e_autenticar", "abrir_e_autenticar.py")
+    spec = importlib.util.spec_from_file_location("abrir_e_autenticar", os.path.join(os.path.dirname(__file__), "abrir_e_autenticar.py"))
     abrir_e_autenticar = importlib.util.module_from_spec(spec)
     sys.modules["abrir_e_autenticar"] = abrir_e_autenticar
     spec.loader.exec_module(abrir_e_autenticar)
 
 def executar_bot():
     global input_cpfs, loading_label, progress_bar, janela, logs  # Declarar as variáveis como global para poder acessá-las
-    
-    spec = importlib.util.spec_from_file_location("consulta_cpf", "consulta_cpf.py")
+
+    spec = importlib.util.spec_from_file_location("consulta_cpf", os.path.join(os.path.dirname(__file__), "consulta_cpf.py"))
     consulta_cpf = importlib.util.module_from_spec(spec)
     sys.modules["consulta_cpf"] = consulta_cpf
     spec.loader.exec_module(consulta_cpf)
-    
+
     # Ler o conteúdo da caixa de texto e remover espaços em branco e novas linhas
     cpfs_text = input_cpfs.get("1.0", tk.END).strip().replace(" ", "").replace("\n", "")
-    
+
     # Verificar se o comprimento total do texto é múltiplo de 11
     if len(cpfs_text) % 11 != 0:
-        raise ValueError("O texto inserido não é um múltiplo de 11 caracteres. Verifique os CPFs inseridos.")
-    
+        raise ValueError("O texto inserido não é um CPF válido.")
+
     # Dividir o texto em blocos de 11 caracteres
     cpfs = [cpfs_text[i:i+11] for i in range(0, len(cpfs_text), 11)]
-    
+
     # Filtrar blocos que não sejam exatamente 11 caracteres (caso haja algum erro de entrada)
     cpfs = [cpf for cpf in cpfs if len(cpf) == 11]
-    
+
     # Verificar se a lista de CPFs não está vazia
     if not cpfs:
         raise ValueError("Nenhum CPF válido encontrado.")
-    
+
     # Mostrar o indicador de carregamento
     loading_label.config(text="Carregando...")
-    
+
     # Função para executar o bot em um thread separado
     def run_bot():
         try:
@@ -60,7 +61,7 @@ def executar_bot():
             # Esconder o indicador de carregamento
             loading_label.config(text="")
             progress_bar['value'] = 0  # Resetar a barra de progresso
-    
+
     # Iniciar o thread
     threading.Thread(target=run_bot).start()
 
@@ -81,24 +82,24 @@ def log_error(message):
 # Função para iniciar a janela
 def iniciar_janela():
     global input_cpfs, loading_label, progress_bar, janela, logs  # Declarar as variáveis como global para poder modificá-las
-    
+
     # Criação da janela
     janela = tk.Tk()
     janela.title("Bot Valentina SFA")
-    
+
     # Definindo o tamanho da janela
     janela.geometry("500x550")
-    
+
     # Criando uma área de input (caixa de texto)
     label_cpf = tk.Label(janela, text="Inserir CPFs, insira os cpfs separados por vírgula")
     label_cpf.pack(pady=10)
     input_cpfs = tk.Text(janela, height=10, width=50)
     input_cpfs.pack(pady=10)
-    
+
     # Logs (texto fixo)
     label_logs = tk.Label(janela, text="Logs")
     label_logs.pack(pady=5)
-    
+
     # Campo de logs
     logs = tk.Text(janela, height=5, width=50, state=tk.DISABLED)
     logs.pack(pady=10)

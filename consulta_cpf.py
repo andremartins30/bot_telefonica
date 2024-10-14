@@ -296,7 +296,7 @@ def run_and_save_to_dataframe(cpfs):
             continue
 
     df_ofertas.to_csv('dados_ofertas.csv', index=False, encoding='utf-8')
-    print("Dados armazenados no arquivo 'dados_ofertas.csv'.")
+    print("Dados armazenados no arquivo 'dadosofertas.csv'.")
     
     df_financeiro.to_csv('financeiro.csv', index=False)
     print("Dados armazenados no arquivo 'financeiro.csv'.")

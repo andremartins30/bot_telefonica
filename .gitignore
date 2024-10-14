@@ -1,4 +1,10 @@
 /financeiro.csv
-/dados_ofertas.csv
-dados_ofertas.csv
+/dadosofertas.csv
+dadosofertas.csv
 financeiro.csv
+.venv
+/dist
+/build
+/development
+/_pycache_
+.idea
