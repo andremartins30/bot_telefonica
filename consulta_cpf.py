@@ -51,7 +51,7 @@ def consulta_cpf(cpf):
         if cpf_option:
             ActionChains(driver).move_to_element(cpf_option).click().perform()
 
-        input_cpf = wait_and_find_element(driver, By.XPATH, "//*[@id='input3-54']", timeout=5)
+        input_cpf = wait_and_find_element(driver, By.XPATH, "//*[@id='input2-54']", timeout=5)
         input_cpf.clear()
         
         actions = ActionChains(driver)
@@ -61,25 +61,33 @@ def consulta_cpf(cpf):
         driver.execute_script("arguments[0].scrollIntoView(true);", button_buscar)
         actions.move_to_element(button_buscar).click().perform()
 
-        button_abrir = wait_and_find_element(driver, By.XPATH, '//a[contains(., "Abrir")]')
-        if button_abrir:
-            driver.execute_script("arguments[0].scrollIntoView(true);", button_abrir)
-            actions.move_to_element(button_abrir).click().perform()
-        else:
+        # Espera curta para verificar a presença do elemento que indica que o cliente não existe
+        time.sleep(2)
+        
+        try:
+            driver.find_element(By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div/div/c-feu-interaction-launcher-omni-portuguese-brazil/div/article/div[2]/vlocity_cmt-omniscript-step[7]/div[2]/slot/vlocity_cmt-omniscript-custom-lwc[1]/slot/c-cf-val-create-account-btn/div/vlocity_cmt-flex-card-state/div/slot/div/div[1]/vlocity_cmt-output-field/div/lightning-formatted-rich-text/span/div/span')
             raise NoSuchElementException("Nenhum registro encontrado para esse CPF")
-        
-        wait_for_page_load(driver)
-        time.sleep(8)
+        except NoSuchElementException:
+            # Se o elemento não for encontrado, continua com a lógica existente
+            button_abrir = wait_and_find_element(driver, By.XPATH, '//a[contains(., "Abrir")]')
+            if button_abrir:
+                driver.execute_script("arguments[0].scrollIntoView(true);", button_abrir)
+                actions.move_to_element(button_abrir).click().perform()
+            else:
+                raise NoSuchElementException("Nenhum registro encontrado para esse CPF")
+            
+            wait_for_page_load(driver)
+            time.sleep(8)
 
-        button_detalhes = wait_and_find_element(driver, By.XPATH, '//a[contains(@class, "slds-action_item") and @aria-label="Detalhes do Cliente"]')
-        if button_detalhes:
-            actions.move_to_element(button_detalhes).click().perform()
-            print("Botão 'Detalhes do Cliente' clicado com sucesso.")
-        else:
-            raise NoSuchElementException("Elemento 'Detalhes do Cliente' não encontrado")
-        
-        wait_for_page_load(driver)
-        time.sleep(3)  # Ajuste o tempo conforme necessário
+            button_detalhes = wait_and_find_element(driver, By.XPATH, '//a[contains(@class, "slds-action_item") and @aria-label="Detalhes do Cliente"]')
+            if button_detalhes:
+                actions.move_to_element(button_detalhes).click().perform()
+                print("Botão 'Detalhes do Cliente' clicado com sucesso.")
+            else:
+                raise NoSuchElementException("Elemento 'Detalhes do Cliente' não encontrado")
+            
+            wait_for_page_load(driver)
+            time.sleep(3)  # Ajuste o tempo conforme necessário
 
     except Exception as e:
         error_message = f"Erro ao realizar consulta para CPF: {cpf}, erro: {str(e)}"
@@ -95,8 +103,7 @@ def buscar_informacoes():
 
         nome_cliente = wait.until(EC.presence_of_element_located((By.XPATH, '//h1//span//strong'))).text.strip()
         elemento_span_text = wait.until(EC.presence_of_element_located((By.XPATH, '//span[contains(@style, "font-size: 20px;")]'))).text.strip()
-        elemento_p = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/div/div/div/div[3]/div/div/div/div/c-val-account-details-page-english/div/article/div[2]/vlocity_cmt-omniscript-step/div[3]/slot/vlocity_cmt-omniscript-custom-lwc[1]/slot/c-cf-val-review-customer/div/vlocity_cmt-flex-card-state[2]/div/slot/div/div[1]/vlocity_cmt-block/div/div/div/slot/div/div/vlocity_cmt-block/div/div/div/slot/div/div[1]/vlocity_cmt-block/div/div/div/slot/div/div/vlocity_cmt-block/div/div/div/slot/div/div[4]/vlocity_cmt-output-field/div/lightning-formatted-rich-text/span/div/p')))
-
+        elemento_p = wait.until(EC.presence_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/div/div/div/div[3]/div/div/div/div/c-val-account-details-page-english/div/article/div[2]/vlocity_cmt-omniscript-step/div[2]/slot/vlocity_cmt-omniscript-custom-lwc[1]/slot/c-cf-val-review-customer/div/vlocity_cmt-flex-card-state[2]/div/slot/div/div[1]/vlocity_cmt-block/div/div/div/slot/div/div/vlocity_cmt-block/div/div/div/slot/div/div[1]/vlocity_cmt-block/div/div/div/slot/div/div/vlocity_cmt-block/div/div/div/slot/div/div[1]/vlocity_cmt-output-field/div/lightning-formatted-rich-text/span/div/p')))
         elemento_p_text = elemento_p.text.strip()
 
         informacoes = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//span[contains(@class, "field-value")]')))
@@ -210,9 +217,13 @@ def format_cpf(cpf):
 
 def buscar_financeiro(cpf):
     try:
-        financeiro = driver.find_element(By.XPATH, '//span[contains(text(), "Financeiro")]')
-        financeiro.click()
-        print("Financeiro clicado com sucesso.")
+        financeiro = wait_and_find_element(driver, By.XPATH, '//span[contains(text(), "Financeiro")]', timeout=10)
+        if financeiro:
+            financeiro.click()
+            print("Financeiro clicado com sucesso.")
+        else:
+            print("Elemento 'Financeiro' não encontrado.")
+            return []
 
         time.sleep(12)
 
@@ -264,45 +275,65 @@ def run_and_save_to_dataframe(cpfs):
     colunas_financeiro = ['CPF', 'Mês de Referência', 'Valor Total', 'Status do Pagamento', 'Status da Fatura', 'Data do vencimento']
     df_financeiro = pd.DataFrame(columns=colunas_financeiro)
 
-    for cpf in tqdm(cpfs_validos, desc="Processando CPFs", unit="CPF"):
-        try:
-            consulta_cpf(cpf)
-            resultados = buscar_informacoes()
-            
-            if cliente_possui_oferta():
-                ofertas = buscar_ofertas()
-                if ofertas:
-                    resultados.extend(ofertas)
-            else:
-                resultados.append("Cliente não possui nenhuma oferta")
-            while len(resultados) < len(colunas_ofertas):
-                resultados.append('')
-            
-            if resultados:
-                df_ofertas.loc[len(df_ofertas)] = resultados
-                print(f"Informações do CPF {cpf} armazenadas.")
-            else:
-                print(f"Nenhuma informação coletada para o CPF {cpf}.")
-            
-            historico_financeiro = buscar_financeiro(cpf)
-            for linha in historico_financeiro:
-                while len(linha) < len(colunas_financeiro):  # Preencher colunas vazias com strings vazias
-                    linha.append('')
-                df_financeiro.loc[len(df_financeiro)] = linha
-        except Exception as e:
-            print(f"Erro ao processar CPF {cpf}: {str(e)}")
-            driver.save_screenshot(f"error_screenshot_{cpf}.png")
-            print(f"Screenshot salvo como error_screenshot_{cpf}.png")
-            continue
+    try:
+        for cpf in tqdm(cpfs_validos, desc="Processando CPFs", unit="CPF"):
+            try:
+                consulta_cpf(cpf)
+                resultados = buscar_informacoes()
+                
+                if cliente_possui_oferta():
+                    ofertas = buscar_ofertas()
+                    if ofertas:
+                        resultados.extend(ofertas)
+                else:
+                    resultados.append("Cliente não possui nenhuma oferta")
+                while len(resultados) < len(colunas_ofertas):
+                    resultados.append('')
+                
+                if resultados:
+                    df_ofertas.loc[len(df_ofertas)] = resultados
+                    print(f"Informações do CPF {cpf} armazenadas.")
+                else:
+                    print(f"Nenhuma informação coletada para o CPF {cpf}.")
+                
+                historico_financeiro = buscar_financeiro(cpf)
+                for linha in historico_financeiro:
+                    while len(linha) < len(colunas_financeiro):  # Preencher colunas vazias com strings vazias
+                        linha.append('')
+                    df_financeiro.loc[len(df_financeiro)] = linha
 
+                # Salvar os DataFrames em arquivos temporários após cada CPF processado
+                df_ofertas.to_csv('dados_ofertas_temp.csv', index=False, encoding='utf-8')
+                df_financeiro.to_csv('financeiro_temp.csv', index=False)
+
+            except Exception as e:
+                print(f"Erro ao processar CPF {cpf}: {str(e)}")
+                driver.save_screenshot(f"error_screenshot_{cpf}.png")
+                print(f"Screenshot salvo como error_screenshot_{cpf}.png")
+                continue
+
+    except Exception as e:
+        print(f"Erro inesperado: {str(e)}")
+        # Salvar os DataFrames em arquivos temporários antes de sair
+        df_ofertas.to_csv('dados_ofertas_temp.csv', index=False, encoding='utf-8')
+        df_financeiro.to_csv('financeiro_temp.csv', index=False)
+        raise
+
+    # Salvar os DataFrames finais em arquivos
     df_ofertas.to_csv('dados_ofertas.csv', index=False, encoding='utf-8')
-    print("Dados armazenados no arquivo 'dadosofertas.csv'.")
+    print("Dados armazenados no arquivo 'dados_ofertas.csv'.")
     
     df_financeiro.to_csv('financeiro.csv', index=False)
     print("Dados armazenados no arquivo 'financeiro.csv'.")
 
 # Lista de CPFs para consulta
-cpfs = []
+cpfs = [
+'95216073272',
+'94598312220',
+'94477787200',
+'91648637191',
+'88882594220',
+]
 
 # Rodar o script
 run_and_save_to_dataframe(cpfs)

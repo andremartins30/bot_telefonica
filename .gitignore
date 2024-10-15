@@ -1,6 +1,8 @@
 /financeiro.csv
 /dadosofertas.csv
 dadosofertas.csv
+dados_ofertas_temp.csv
+financeiro_temp.csv
 financeiro.csv
 .venv
 /dist
@@ -8,3 +10,4 @@ financeiro.csv
 /development
 /_pycache_
 .idea
+/drivers
