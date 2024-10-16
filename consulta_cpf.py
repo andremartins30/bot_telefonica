@@ -77,7 +77,7 @@ def consulta_cpf(cpf):
                 raise NoSuchElementException("Nenhum registro encontrado para esse CPF")
             
             wait_for_page_load(driver)
-            time.sleep(8)
+            time.sleep(6)
 
             button_detalhes = wait_and_find_element(driver, By.XPATH, '//a[contains(@class, "slds-action_item") and @aria-label="Detalhes do Cliente"]')
             if button_detalhes:
@@ -247,6 +247,7 @@ def buscar_financeiro(cpf):
                 dados.insert(0, cpf)
                 while len(dados) < 6:  # Preencher colunas vazias com strings vazias
                     dados.append('')
+                
                 historico_financeiro1.append(dados)
         else:
             print("Histórico Financeiro não encontrado.")
@@ -308,8 +309,7 @@ def run_and_save_to_dataframe(cpfs):
 
             except Exception as e:
                 print(f"Erro ao processar CPF {cpf}: {str(e)}")
-                driver.save_screenshot(f"error_screenshot_{cpf}.png")
-                print(f"Screenshot salvo como error_screenshot_{cpf}.png")
+                driver.save_screenshot(f'erro_{cpf}.png')
                 continue
 
     except Exception as e:
@@ -328,11 +328,9 @@ def run_and_save_to_dataframe(cpfs):
 
 # Lista de CPFs para consulta
 cpfs = [
-'95216073272',
-'94598312220',
-'94477787200',
-'91648637191',
-'88882594220',
+'94040176120',
+'94026009653',
+'94021120220',
 ]
 
 # Rodar o script
