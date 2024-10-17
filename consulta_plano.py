@@ -75,7 +75,12 @@ def consulta_plano():
                     # Organiza a lista em uma tabela com 9 colunas
                     dados = [tabela_list[i:i + 9] for i in range(0, len(tabela_list), 9)]
 
-                    return dados
+                    # Filtra apenas as colunas 0, 1, 2 e 4
+                    dados_filtrados = [[linha[0], linha[1], linha[2], linha[4]] for linha in dados]
+
+                    print("Dados capturados com sucesso.", dados_filtrados)
+
+                    return dados_filtrados
                 else:
                     print("Elemento não encontrado.")
                     return []
@@ -88,7 +93,7 @@ dados = consulta_plano()
 
 if dados:
     # Converte os dados para um DataFrame do Pandas
-    df = pd.DataFrame(dados, columns=[f'Coluna {i}' for i in range(9)])
+    df = pd.DataFrame(dados, columns=['Coluna 0', 'Coluna 1', 'Coluna 2', 'Coluna 4'])
     
     # Remove linhas que não contêm dados relevantes
     df = df.dropna(how='all')

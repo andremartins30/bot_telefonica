@@ -94,6 +94,60 @@ def consulta_cpf(cpf):
         print(error_message)
         raise
 
+def consulta_plano():
+    time.sleep(2)
+
+    try:
+        # Espera até que a página esteja completamente carregada
+        wait_for_page_load(driver)
+        print("Página carregada completamente.")
+
+        # Espera explícita para o elemento "Produtos"
+        produtos = wait_and_find_element(driver, By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div[1]/div/div[2]/div/div/ul/li[1]/a/span[2]", timeout=30)
+        if produtos:
+            produtos.click()
+            print("Produto clicado com sucesso.")
+
+            lista = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//button[contains(@class, "slds-button") and contains(@class, "slds-button_icon") and contains(@class, "slds-button_icon-border-filled") and contains(@class, "slds-is-selected")]'))
+            )
+            
+            time.sleep(5)
+
+            if lista:
+                lista.click()
+                print("Lista de produtos clicada com sucesso.")
+
+                time.sleep(5)
+
+                # Seleciona a tabela de produtos
+                tabela = driver.find_elements(By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div[1]/div/div[2]/div/section/div/div/c-cf-val-products-view-selector/div/vlocity_cmt-flex-card-state/div/slot/div/div[1]/vlocity_cmt-block/div/div/div/slot/div/div[5]/vlocity_cmt-block/div/div/div/slot/div/div/c-cf-val-product-table-view/div/vlocity_cmt-flex-card-state/div/slot/div/div[3]/c-cf-val-products-data')
+
+                # Se o elemento foi encontrado, captura o texto
+                if tabela:
+                    tabela_text = tabela[0].text  # Pega o texto do primeiro elemento encontrado
+
+                    # Divide o texto em uma lista de strings
+                    tabela_list = tabela_text.split('\n')
+
+                    # Organiza a lista em uma tabela com 9 colunas
+                    dados = [tabela_list[i:i + 9] for i in range(0, len(tabela_list), 9)]
+
+                    # Filtra apenas as colunas 0, 1, 2 e 4
+                    dados_filtrados = [[linha[0], linha[1], linha[3], linha[4]] for linha in dados]
+
+                    print("Dados capturados com sucesso.", dados_filtrados)
+
+                    return dados_filtrados
+                else:
+                    print("Elemento não encontrado.")
+                    return []
+
+    except Exception as e:
+        print(f"Erro ao procurar o elemento 'Produto': {e}")
+        return []
+
+
 def buscar_informacoes():
     try:
 
@@ -225,7 +279,7 @@ def buscar_financeiro(cpf):
             print("Elemento 'Financeiro' não encontrado.")
             return []
 
-        time.sleep(12)
+        time.sleep(13)
 
         wait_for_page_load(driver)
 
@@ -233,7 +287,7 @@ def buscar_financeiro(cpf):
             EC.presence_of_element_located((By.XPATH, "//strong[contains(text(), 'Histórico de Faturas')]"))
         )
 
-        time.sleep(2)
+        time.sleep(3)
 
         print("Elemento encontrado: Histórico de Faturas", element)
 
@@ -270,7 +324,7 @@ def run_and_save_to_dataframe(cpfs):
         print("Nenhum CPF válido encontrado.")
         return
     
-    colunas_ofertas = ['CPF', 'Nome do Cliente', 'Protocolo', 'Segmento', 'Data de Nascimento', 'Tempo como cliente Movel', 'Tempo como cliente Fixa', 'Telefone Principal', 'Email Principal', 'Tipo de Cliente', 'Nome', 'Sobrenome', 'Telefone Alternativo 1', 'Telefone Alternativo 2', 'Email Alternativo', 'CEP', 'Estado', 'Cidade', 'Bairro', 'Logradouro', 'Numero', 'Complemento', 'Linha do Endereço', 'Oferta', 'Descrição Oferta', 'Valor Oferta', 'Oferta 2', 'Descrição Oferta 2', 'Valor Oferta 2', 'Oferta 3', 'Descrição Oferta 3', 'Valor Oferta 3', 'Oferta 4', 'Descrição Oferta 4', 'Valor Oferta 4', 'Oferta 5', 'Descrição Oferta 5', 'Valor Oferta 5']
+    colunas_ofertas = ['CPF', 'Telefone/Linhas', 'Número da Conta', 'Tipo', 'Plano', 'Nome do Cliente', 'Protocolo', 'Segmento', 'Data de Nascimento', 'Tempo como cliente Movel', 'Tempo como cliente Fixa', 'Telefone Principal', 'Email Principal', 'Tipo de Cliente', 'Nome', 'Sobrenome', 'Telefone Alternativo 1', 'Telefone Alternativo 2', 'Email Alternativo', 'CEP', 'Estado', 'Cidade', 'Bairro', 'Logradouro', 'Numero', 'Complemento', 'Linha do Endereço', 'Oferta', 'Descrição Oferta', 'Valor Oferta', 'Oferta 2', 'Descrição Oferta 2', 'Valor Oferta 2', 'Oferta 3', 'Descrição Oferta 3', 'Valor Oferta 3', 'Oferta 4', 'Descrição Oferta 4', 'Valor Oferta 4', 'Oferta 5', 'Descrição Oferta 5', 'Valor Oferta 5']
     df_ofertas = pd.DataFrame(columns=colunas_ofertas)
     
     colunas_financeiro = ['CPF', 'Mês de Referência', 'Valor Total', 'Status do Pagamento', 'Status da Fatura', 'Data do vencimento']
@@ -288,11 +342,25 @@ def run_and_save_to_dataframe(cpfs):
                         resultados.extend(ofertas)
                 else:
                     resultados.append("Cliente não possui nenhuma oferta")
-                while len(resultados) < len(colunas_ofertas):
+                while len(resultados) < len(colunas_ofertas) - 4:
                     resultados.append('')
                 
-                if resultados:
+                # Adiciona as colunas de plano
+                planos = consulta_plano()
+                if planos:
+                    for plano in planos:
+                        resultados_com_plano = resultados.copy()
+                        # Inserir os dados do plano nas posições corretas
+                        resultados_com_plano.insert(1, plano[0])  # Telefone/Linhas
+                        resultados_com_plano.insert(2, plano[1])  # Número da Conta
+                        resultados_com_plano.insert(3, plano[2])  # Tipo
+                        resultados_com_plano.insert(4, plano[3])  # Plano
+                        df_ofertas.loc[len(df_ofertas)] = resultados_com_plano
+                else:
+                    resultados.extend([''] * 4)
                     df_ofertas.loc[len(df_ofertas)] = resultados
+                
+                if resultados:
                     print(f"Informações do CPF {cpf} armazenadas.")
                 else:
                     print(f"Nenhuma informação coletada para o CPF {cpf}.")
@@ -322,18 +390,26 @@ def run_and_save_to_dataframe(cpfs):
     # Salvar os DataFrames finais em arquivos
     df_ofertas.to_csv('dados_ofertas.csv', index=False, encoding='utf-8')
     print("Dados armazenados no arquivo 'dados_ofertas.csv'.")
-    
+
     df_financeiro.to_csv('financeiro.csv', index=False)
     print("Dados armazenados no arquivo 'financeiro.csv'.")
 
 # Lista de CPFs para consulta
 cpfs = [
-'94040176120',
-'94026009653',
-'94021120220',
+'95216073272',
+'94598312220',
+'94477787200',
+'91648637191',
+'88882594220',
+'88465284253',
+'75963990297',
+'69746613200',
+'67019242200',
+'48444570125',
+'45715637287',
 ]
 
 # Rodar o script
 run_and_save_to_dataframe(cpfs)
 
-print("Processo concluído.") 
+print("Processo concluído.")
