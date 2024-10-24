@@ -59,7 +59,7 @@ def ajustar_financeiro(file_path):
             linhas_ajustadas.append(linha_ajustada)
 
         # Salvar o arquivo ajustado
-        nome_arquivo_ajustado = file_path.replace('.csv', '.csv')
+        nome_arquivo_ajustado = file_path.replace('.csv', '_ajustado.csv')
         with open(nome_arquivo_ajustado, 'w', encoding='utf-8', newline='') as arquivo:
             escritor = csv.writer(arquivo)
             escritor.writerows(linhas_ajustadas)

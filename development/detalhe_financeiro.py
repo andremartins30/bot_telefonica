@@ -20,7 +20,6 @@ def is_cpf_format(text):
 
 def buscar_financeiro():
     try:
-
         element = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, '//span[contains(@style, "text-decoration:teste;")]'))
         )
@@ -65,6 +64,11 @@ def buscar_financeiro():
 
         if linha_atual:
             historico_formatado.append(linha_atual)
+
+        # Adicionar "Não Informado" para colunas vazias
+        for linha in historico_formatado:
+            while len(linha) < 6:
+                linha.insert(3, "Não Informado")
 
         # Criar um DataFrame do pandas
         df = pd.DataFrame(historico_formatado, columns=['CPF', 'Mês de Referência', 'Valor Total', 'Status do Pagamento', 'Status da Fatura', 'Data do vencimento'])

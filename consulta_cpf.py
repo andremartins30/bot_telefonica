@@ -35,12 +35,12 @@ def wait_and_find_element(driver, by, value, timeout=10):
     except TimeoutException:
         print(f"Tempo esgotado ao procurar o elemento: {value}")
         return None
-
 def consulta_cpf(cpf):
     try:
         print(f"Iniciando consulta para CPF: {cpf}")
 
         driver.get('https://valentinatelefonica.my.site.com/s/busca-por-linha')
+        time.sleep(3)
         combobox = wait_and_find_element(driver, By.XPATH, "//input[contains(@class, 'slds-input') and @role='combobox']", timeout=5)
         
         if not combobox:
@@ -77,7 +77,7 @@ def consulta_cpf(cpf):
                 raise NoSuchElementException("Nenhum registro encontrado para esse CPF")
             
             wait_for_page_load(driver)
-            time.sleep(6)
+            time.sleep(7)
 
             button_detalhes = wait_and_find_element(driver, By.XPATH, '//a[contains(@class, "slds-action_item") and @aria-label="Detalhes do Cliente"]')
             if button_detalhes:
@@ -103,6 +103,7 @@ def consulta_plano():
         print("Página carregada completamente.")
 
         # Espera explícita para o elemento "Produtos"
+        time.sleep(2)
         produtos = wait_and_find_element(driver, By.XPATH, "/html/body/div[3]/div[2]/div/div[2]/div[1]/div/div[2]/div/div/ul/li[1]/a/span[2]", timeout=30)
         if produtos:
             produtos.click()
@@ -112,13 +113,13 @@ def consulta_plano():
                 EC.presence_of_element_located((By.XPATH, '//button[contains(@class, "slds-button") and contains(@class, "slds-button_icon") and contains(@class, "slds-button_icon-border-filled") and contains(@class, "slds-is-selected")]'))
             )
             
-            time.sleep(5)
+            time.sleep(6)
 
             if lista:
                 lista.click()
                 print("Lista de produtos clicada com sucesso.")
 
-                time.sleep(5)
+                time.sleep(6)
 
                 # Seleciona a tabela de produtos
                 tabela = driver.find_elements(By.XPATH, '/html/body/div[3]/div[2]/div/div[2]/div[1]/div/div[2]/div/section/div/div/c-cf-val-products-view-selector/div/vlocity_cmt-flex-card-state/div/slot/div/div[1]/vlocity_cmt-block/div/div/div/slot/div/div[5]/vlocity_cmt-block/div/div/div/slot/div/div/c-cf-val-product-table-view/div/vlocity_cmt-flex-card-state/div/slot/div/div[3]/c-cf-val-products-data')
@@ -142,7 +143,12 @@ def consulta_plano():
                 else:
                     print("Elemento não encontrado.")
                     return []
-
+            else:
+                print("Elemento 'Lista' não encontrado.")
+                return []
+        else:
+            print("Elemento 'Produto' não encontrado.")
+            return []
     except Exception as e:
         print(f"Erro ao procurar o elemento 'Produto': {e}")
         return []
@@ -279,9 +285,8 @@ def buscar_financeiro(cpf):
             print("Elemento 'Financeiro' não encontrado.")
             return []
 
-        time.sleep(13)
-
         wait_for_page_load(driver)
+        time.sleep(15)
 
         element = wait.until(
             EC.presence_of_element_located((By.XPATH, "//strong[contains(text(), 'Histórico de Faturas')]"))
@@ -395,19 +400,7 @@ def run_and_save_to_dataframe(cpfs):
     print("Dados armazenados no arquivo 'financeiro.csv'.")
 
 # Lista de CPFs para consulta
-cpfs = [
-'95216073272',
-'94598312220',
-'94477787200',
-'91648637191',
-'88882594220',
-'88465284253',
-'75963990297',
-'69746613200',
-'67019242200',
-'48444570125',
-'45715637287',
-]
+cpfs = []
 
 # Rodar o script
 run_and_save_to_dataframe(cpfs)

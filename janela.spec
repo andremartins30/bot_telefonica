@@ -1,23 +1,33 @@
-# janela.spec
 # -*- mode: python ; coding: utf-8 -*-
 
-block_cipher = None
 
 a = Analysis(
     ['janela.py'],
-    pathex=['.'],
+    pathex=[],
     binaries=[],
-    datas=[('abrir_e_autenticar.py', '.'), ('consulta_cpf.py', '.'), ('drivers/chromedriver.exe', 'drivers')],
-    hiddenimports=['selenium', 'selenium.webdriver.chrome', 'pandas', 'tkinter'],
+    datas=[
+        ('abrir_e_autenticar.py', '.'),
+        ('consulta_cpf.py', '.'),
+    ],
+    hiddenimports=[
+        'selenium',
+        'selenium.webdriver',
+        'selenium.webdriver.common',
+        'selenium.webdriver.support',
+        'selenium.webdriver.chrome',
+        'pandas',
+        'tkinter',
+        'tqdm'
+    ],
     hookspath=[],
+    hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
+    optimize=0,
 )
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure)
+
 exe = EXE(
     pyz,
     a.scripts,
@@ -28,14 +38,16 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
-    console=False,
+    console=True,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
 )
 coll = COLLECT(
     exe,
     a.binaries,
-    a.zipfiles,
     a.datas,
     strip=False,
     upx=True,
